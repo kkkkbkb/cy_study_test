@@ -58,16 +58,16 @@ def process_and_round_electric_data(df):
 
 def process_electric_data(file_path):
     """
-    读取电性能数据，四舍五入采集时刻(s)列并删除重复的采集时刻
+    读取电性能数据，删除了类型为电性能加载前|恢复室温的行并把类型列中的NaN换为空,还取整了采样时刻的值
     """
     df = pd.read_csv(file_path, encoding='gbk')
     print(df.columns)  # 打印列名，确认电阻值(Ω) 列是否存在
     if '电阻值(Ω)' not in df.columns:
         print("电阻值(Ω) 列不存在")
 
-    df['类型'] = df['类型'].fillna('')  # 将 NaN 值替换为空字符串
+    df['类型'] = df['类型'].fillna('')  # 将类型列里的 NaN 值替换为空字符串但类型中好像并没有NaN
     # df['电阻值(Ω)'] = df['电阻值(Ω)'].fillna('')  # 将 NaN 值替换为 999999
-    df['电阻值(Ω)'] = df['电阻值(Ω)']  # 保留原始 NaN 值
+    df['电阻值(Ω)'] = df['电阻值(Ω)']  # 保留原始 NaN 值（相当于没做处理）
 
     df = df[~df['类型'].str.contains('电性能加载前|恢复室温')]
     df = calculate_cycles(df)
@@ -77,7 +77,7 @@ def process_electric_data(file_path):
 
 def process_sensor_data(sensor_file_path):
     """
-    读取并处理传感器数据
+    读取并处理传感器数据,处理包括合并了类型和通道这两列(并排列好顺序)和取整采集时刻的数值,返回一个DataFrame二元数组
     """
     sensor_df = pd.read_csv(sensor_file_path, encoding='gbk')
     sensor_df['采集时刻(s)'] = sensor_df['采集时刻(s)'].round().astype(int)
@@ -92,8 +92,10 @@ def merge_sensor_and_electric(sensor_df, electric_df):
     """
     合并传感器数据和电性能数据，找到第一个和最后一个相同采集时刻的区间，
     并在这个区间内按照60秒的时间窗口划分数据。保留原有的两个采集时刻。
-    在每个60秒的时间窗口内，如果电性能数据有多个记录，则取最后一个电性能记录。
-    如果在t2有相同采集时刻(s)的数据，则取最后一个，期间其他相同采集时刻(s)的数据保留。
+    在每个60秒的时间窗口内,如果电性能数据有多个记录，则取最后一个电性能记录。
+    如果在t2有相同采集时刻(s)的数据，则取最后一个，期间其他相同采集时刻(s)
+    对于传感器数据的处理只有通道排序和60s窗口划分
+    而电性能数据则是60s窗口划分并保留同时刻最后一个的值,然后加入了大循环是否类型标记(不清楚是什么作用)
     """
     merged_sensor_data = []
     merged_electric_data = []
@@ -303,7 +305,7 @@ def create_processed_directory(original_dir):
     """
     parent_dir, folder_name = os.path.split(original_dir)
     # parent_dir=r'D:\desktop\data_processing(3)\data_processing\试验数据集\result1'
-    parent_dir= r'E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\code_test\data_preprocessing'
+    parent_dir= r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing'
     # 分割父目录和当前文件夹名
     processed_dir = os.path.join(parent_dir, folder_name + "_processed")  # 在父目录下创建 *_processed 文件夹
     if not os.path.exists(processed_dir):
@@ -312,7 +314,7 @@ def create_processed_directory(original_dir):
 
 def data_make(input_dir):
     """
-    遍历该输入目录下的所有文件，并对每个文件进行处理
+    遍历该输入目录下的所有文件，并对每个文件进行处理,仅用于检测文件夹中是否有以.csv结尾的文件
     """
     # 查找所有的 .csv 文件
     csv_files = [f for f in os.listdir(input_dir) if f.endswith(".csv")]
@@ -337,7 +339,7 @@ def data_make(input_dir):
 def main():
     # 调用示例
     # input_dir = r'D:\desktop\data_processing(3)\data_processing\试验数据集'
-    input_dir = r'E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data'
+    input_dir = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data'
     print(os.listdir(input_dir))
     data_make(input_dir)
 

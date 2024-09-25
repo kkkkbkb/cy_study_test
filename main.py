@@ -203,9 +203,9 @@ def test(sensor_net, electric_net, dataloader):
 
 # 主函数
 if __name__ == "__main__":
-    sensor_file = r'E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\传感器20240812_153727-大电流加载实验.xlsx'
-    electric_file = r'E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\电性能20240812_153727-大电流加载实验.xlsx'
-    y_real_file = r'E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\y_result_电性能20240812_153727-大电流加载实验.xlsx'
+    sensor_file = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\传感器20240812_153727-大电流加载实验.xlsx'
+    electric_file = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\电性能20240812_153727-大电流加载实验.xlsx'
+    y_real_file = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\y_result_电性能20240812_153727-大电流加载实验.xlsx'
 
     # 生成训练集和测试集
     (train_sensor_data, train_electric_data_list, train_y_real_list), \

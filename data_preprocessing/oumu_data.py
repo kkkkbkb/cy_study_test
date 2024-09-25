@@ -5,7 +5,7 @@ import pandas as pd
 
 def extract_first_resistance_value(file_path):
     """
-    从 Excel 文件中提取电阻值，并将每个组的下一个60s时段的第一个值返回
+    从 Excel 文件中提取电阻值,并将每个组的下一个60s时段的第一个值返回
     """
     # 读取Excel文件
     df = pd.read_excel(file_path)
@@ -74,5 +74,5 @@ def process_electric_files(input_dir):
 
 # 调用示例
 # input_dir = r'D:\desktop\data_processing(3)\data_processing\试验数据集\result1' # E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\data_processing(1)\data_processing(3)\data_processing\试验数据集\result1
-input_dir = r'E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed'
+input_dir = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed'
 process_electric_files(input_dir)
