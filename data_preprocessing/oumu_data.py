@@ -5,7 +5,7 @@ import pandas as pd
 
 def extract_first_resistance_value(file_path):
     """
-    从 Excel 文件中提取电阻值,并将每个组的下一个60s时段的第一个值返回
+    从 Excel 文件中提取电子负载输入电压(V),并将每个组的下一个60s时段的第一个值返回
     """
     # 读取Excel文件
     df = pd.read_excel(file_path)
@@ -14,14 +14,14 @@ def extract_first_resistance_value(file_path):
     df.columns = df.columns.str.strip()
 
     # 确认 '60s划分标记' 和 '电阻值(Ω)' 列存在
-    if '60s划分标记' not in df.columns or '电阻值(Ω)' not in df.columns:
-        raise ValueError("必要的列 '60s划分标记' 或 '电阻值(Ω)' 不存在，请检查列名。")
+    if '60s划分标记' not in df.columns or '电子负载输入电压(V)' not in df.columns:
+        raise ValueError("必要的列 '60s划分标记' 或 '电子负载输入电压(V)' 不存在，请检查列名。")
 
     # 按照 '60s划分标记' 分组并取每个组的第一个电阻值
-    first_rows = df.groupby('60s划分标记').agg({'电阻值(Ω)': 'first'}).reset_index()
+    first_rows = df.groupby('60s划分标记').agg({'电子负载输入电压(V)': 'first'}).reset_index()
 
     # 将电阻值向下移动一行，这样每个分组就会取到下一个时段的电阻值
-    first_rows['电阻值(Ω)'] = first_rows['电阻值(Ω)'].shift(-1)
+    first_rows['电子负载输入电压(V)'] = first_rows['电子负载输入电压(V)'].shift(-1)
 
     # # 删除空值（可能最后一组会没有下一个时段）
     # first_rows.dropna(subset=['电阻值(Ω)'], inplace=True)
@@ -49,7 +49,8 @@ def save_to_excel(merged_df, output_file_path):
 
 def process_electric_files(input_dir):
     """
-    遍历目录下所有包含“电性能”的xlsx文件，提取每个文件的电阻值并保存结果。
+    遍历目录下所有包含“电性能”的xlsx文件,提取每个文件的电阻值并保存结果。
+    其中file指的是文件名、root指的是路径(不包含文件名)、dirs没有用到
     """
     # 遍历目录中的所有文件
     for root, dirs, files in os.walk(input_dir):
@@ -74,5 +75,5 @@ def process_electric_files(input_dir):
 
 # 调用示例
 # input_dir = r'D:\desktop\data_processing(3)\data_processing\试验数据集\result1' # E:\博士阶段文件\5. 项目文件\17. 集电与太赫兹中心故障预测\data_processing(1)\data_processing(3)\data_processing\试验数据集\result1
-input_dir = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed'
+input_dir = r'D:\cy\集电与太赫兹中心故障预测\code_test_vol\data_preprocessing\raw_data_processed'
 process_electric_files(input_dir)

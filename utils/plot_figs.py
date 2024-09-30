@@ -20,7 +20,7 @@ def plot_predictions_vs_real(y1_list, y_real_list):
     plt.xlabel('Sample')
     plt.ylabel('Value')
     plt.title('Predicted y1 vs Real y')
-    plt.ylim(0.005, 0.04)  # 设置纵坐标范围为0.010到0.025
+    plt.ylim(-5, 30)  # 设置纵坐标范围为0.010到0.025
     plt.legend()
     plt.show()
 

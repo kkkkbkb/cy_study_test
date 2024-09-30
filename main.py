@@ -65,7 +65,7 @@ def generate_data(sensor_file, electric_file, y_real_file, train_ratio=0.8):
 
         # 提取电性能数据
         if i in electric_groups.groups:
-            electric_values = electric_groups.get_group(i)['电阻值(Ω)'].values
+            electric_values = electric_groups.get_group(i)['电子负载输入电压(V)'].values
         else:
             electric_values = np.zeros((1,))  # 如果没有该组，填充0
 
@@ -74,7 +74,7 @@ def generate_data(sensor_file, electric_file, y_real_file, train_ratio=0.8):
 
         # 提取真实电阻值
         if i in y_real_groups.groups:
-            y_real_value = y_real_groups.get_group(i)['电阻值(Ω)'].values[0]
+            y_real_value = y_real_groups.get_group(i)['电子负载输入电压(V)'].values[0]
         else:
             y_real_value = 0.0  # 如果没有真实电阻值，填充0
 
@@ -203,13 +203,16 @@ def test(sensor_net, electric_net, dataloader):
 
 # 主函数
 if __name__ == "__main__":
-    sensor_file = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\传感器20240812_153727-大电流加载实验.xlsx'
-    electric_file = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\电性能20240812_153727-大电流加载实验.xlsx'
-    y_real_file = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data_processed\y_result_电性能20240812_153727-大电流加载实验.xlsx'
+    # sensor_file = r'D:\cy\集电与太赫兹中心故障预测\code_test_vol\data_preprocessing\raw_data_processed\传感器20240812_153727-大电流加载实验.xlsx'
+    # electric_file = r'D:\cy\集电与太赫兹中心故障预测\code_test_vol\data_preprocessing\raw_data_processed\电性能20240812_153727-大电流加载实验.xlsx'
+    #y_real_file = r'D:\cy\集电与太赫兹中心故障预测\code_test_vol\data_preprocessing\raw_data_processed\y_result_电性能20240812_153727-大电流加载实验.xlsx'
 
     # 生成训练集和测试集
     (train_sensor_data, train_electric_data_list, train_y_real_list), \
-    (test_sensor_data, test_electric_data_list, test_y_real_list) = generate_data(sensor_file, electric_file, y_real_file, train_ratio=0.8)
+    (test_sensor_data, test_electric_data_list, test_y_real_list) = generate_data(sensor_file = args.sensor_file,
+                                                                                  electric_file = args.electric_file,
+                                                                                  y_real_file = args.y_real_file,
+                                                                                  train_ratio=0.8)
 
     # 创建数据集
     train_dataset = CustomDataset(train_sensor_data, train_electric_data_list, train_y_real_list)

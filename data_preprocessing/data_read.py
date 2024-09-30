@@ -4,6 +4,19 @@ import glob
 
 """该文件的主要目的是读取传感器数据和电性能数据，进行预处理并合并"""
 
+def state_num(df):
+    for index , row in df.iterrows():
+        if row['类型'] == '电加载中-测试导通电阻（大电流模式）':
+            df.at[index,'类型'] = 0
+        elif row['类型'] == '电性能加载后-测试关断电阻（降温中）':
+            df.at[index,'类型'] = 1
+        elif row['类型'] == '电性能加载后-测试导通电阻（降温中）':
+            df.at[index,'类型'] = 2
+        else :
+            df.at[index,'类型'] = 3
+
+    return df
+
 def calculate_cycles(df):
     """
     计算大循环周期和小循环关断导通次数
@@ -65,13 +78,14 @@ def process_electric_data(file_path):
     if '电阻值(Ω)' not in df.columns:
         print("电阻值(Ω) 列不存在")
 
-    df['类型'] = df['类型'].fillna('')  # 将类型列里的 NaN 值替换为空字符串但类型中好像并没有NaN
+    #df['类型'] = df['类型'].fillna('')  # 将类型列里的 NaN 值替换为空字符串但类型中好像并没有NaN
     # df['电阻值(Ω)'] = df['电阻值(Ω)'].fillna('')  # 将 NaN 值替换为 999999
     df['电阻值(Ω)'] = df['电阻值(Ω)']  # 保留原始 NaN 值（相当于没做处理）
 
     df = df[~df['类型'].str.contains('电性能加载前|恢复室温')]
     df = calculate_cycles(df)
     df = process_and_round_electric_data(df)
+    df = state_num(df)
     return df
 
 
@@ -153,9 +167,11 @@ def merge_sensor_and_electric(sensor_df, electric_df):
             electric_in_range = electric_in_range.drop_duplicates(subset=['采集时刻(s)'], keep='last')
 
         electric_in_range['60s划分标记'] = cycle_number
-
+        '''
         # 添加类型标记逻辑
         electric_in_range['类型'] = electric_in_range['类型'].fillna('')  # 替换 NaN 值为空字符串
+        
+        不清楚大循环标记类型的作用，先不做处理
         electric_in_range['大循环是否类型标记'] = 0  # 初始化大循环标记
 
         # 设置类型标记
@@ -171,6 +187,7 @@ def merge_sensor_and_electric(sensor_df, electric_df):
                 (cycle_df['类型'].str.contains('电性能加载后-测试关断电阻（降温中）').any() or
                  cycle_df['类型'].str.contains('电性能加载后-测试导通电阻（降温中）').any())):
             electric_in_range['大循环是否类型标记'] = 2
+        '''
 
         # 只保留指定的列并按顺序排列
         sensor_in_range = sensor_in_range[[
@@ -178,7 +195,7 @@ def merge_sensor_and_electric(sensor_df, electric_df):
         ]]
 
         electric_in_range = electric_in_range[[
-            '序号', '采集时刻(s)', '60s划分标记', '循环大周期', '类型', '大循环是否类型标记', '小循环_关断导通次数', '电阻值(Ω)'
+            '序号', '采集时刻(s)', '60s划分标记', '循环大周期', '类型' , '小循环_关断导通次数', '电阻值(Ω)'
         ]]
 
         # 保存传感器和电性能数据
@@ -204,8 +221,9 @@ def save_to_excel(merged_df, output_file_path):
         print("电阻值(Ω) 列的 NaN 值数量: ", merged_df['电阻值(Ω)'].isna().sum())
 
     # 只对非 'category' 类型的列执行 fillna
-    non_categorical_columns = merged_df.select_dtypes(exclude=['category']).columns
-    merged_df[non_categorical_columns] = merged_df[non_categorical_columns].fillna('NaN')
+    #non_categorical_columns = merged_df.select_dtypes(exclude=['category']).columns
+    #merged_df[non_categorical_columns] = merged_df[non_categorical_columns].fillna('NaN')
+
     merged_df.to_excel(output_file_path, index=False)
     print(f"合并后的文件已保存为: {output_file_path}")
 
@@ -305,7 +323,7 @@ def create_processed_directory(original_dir):
     """
     parent_dir, folder_name = os.path.split(original_dir)
     # parent_dir=r'D:\desktop\data_processing(3)\data_processing\试验数据集\result1'
-    parent_dir= r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing'
+    parent_dir= r'D:\cy\集电与太赫兹中心故障预测\code_test_variables\data_preprocessing'
     # 分割父目录和当前文件夹名
     processed_dir = os.path.join(parent_dir, folder_name + "_processed")  # 在父目录下创建 *_processed 文件夹
     if not os.path.exists(processed_dir):
@@ -339,7 +357,7 @@ def data_make(input_dir):
 def main():
     # 调用示例
     # input_dir = r'D:\desktop\data_processing(3)\data_processing\试验数据集'
-    input_dir = r'D:\cy\集电与太赫兹中心故障预测\code_test\data_preprocessing\raw_data'
+    input_dir = r'D:\cy\集电与太赫兹中心故障预测\code_test_variables\data_preprocessing\raw_data'
     print(os.listdir(input_dir))
     data_make(input_dir)
 
